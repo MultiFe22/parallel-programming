@@ -1,6 +1,3 @@
-/* Sequential Mandlebrot program */
-
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
@@ -125,7 +122,7 @@ void main ()
 			for(j=0; j < Y_RESN; j++) {
 
 			z.real = z.imag = 0.0;
-			c.real = ((float) j - 500.0)/250.0;               /* scale factors for 800 x 800 window */
+			c.real = ((float) j - 500.0)/250.0;               /* scale factors for 1000 x 1000 window */
 			c.imag = ((float) i - 500.0)/250.0;
 			k = 0;
 
