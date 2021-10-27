@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <omp.h>
+#include <sys/time.h>
 
 #define		X_RESN	1000       /* x resolution */
 #define		Y_RESN	1000       /* y resolution */
@@ -40,6 +42,7 @@ void main ()
 	FILE		*fp, *fopen ();
 	char		str[100];
 	
+	
 	XSetWindowAttributes attr[1];
 
        /* Mandlebrot variables */
@@ -55,6 +58,9 @@ void main ()
 	exit (-1);
 	}
 	
+	printf("OpenMP uses up to %d threads running on %d processors\n",
+        omp_get_max_threads(), omp_get_num_procs());
+
 	/* get screen size */
 
 	screen = DefaultScreen (display);
@@ -105,31 +111,43 @@ void main ()
 
 	XMapWindow (display, win);
 	XSync(display, 0);
-      	 
+    long start, end;
+    struct timeval timecheck;
+
+    gettimeofday(&timecheck, NULL);
+    start = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
+
         /* Calculate and draw points */
+		#pragma omp parallel shared(display,win,gc) private(z,c,k,i,j,lengthsq,temp)
+		{
+			#pragma omp for schedule(dynamic, omp_get_max_threads())
+			for(i=0; i < X_RESN; i++) 
+			for(j=0; j < Y_RESN; j++) {
 
-        for(i=0; i < X_RESN; i++) 
-        for(j=0; j < Y_RESN; j++) {
+			z.real = z.imag = 0.0;
+			c.real = ((float) j - 500.0)/250.0;               /* scale factors for 800 x 800 window */
+			c.imag = ((float) i - 500.0)/250.0;
+			k = 0;
 
-          z.real = z.imag = 0.0;
-          c.real = ((float) j - 500.0)/250.0;               /* scale factors for 800 x 800 window */
-	  	c.imag = ((float) i - 500.0)/250.0;
-          k = 0;
+			do  {                                             /* iterate for pixel color */
 
-          do  {                                             /* iterate for pixel color */
+				temp = z.real*z.real - z.imag*z.imag + c.real;
+				z.imag = 2.0*z.real*z.imag + c.imag;
+				z.real = temp;
+				lengthsq = z.real*z.real+z.imag*z.imag;
+				k++;
 
-            temp = z.real*z.real - z.imag*z.imag + c.real;
-            z.imag = 2.0*z.real*z.imag + c.imag;
-            z.real = temp;
-            lengthsq = z.real*z.real+z.imag*z.imag;
-            k++;
+			} while (lengthsq < 4.0 && k < 10000);
+			#pragma omp critical
+			{ 
+			if (k == 10000) XDrawPoint (display, win, gc, j, i);
+			}
+			}
+		}
+	gettimeofday(&timecheck, NULL);
+    end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
 
-          } while (lengthsq < 4.0 && k < 10000);
-
-        if (k == 10000) XDrawPoint (display, win, gc, j, i);
-
-        }
-	 
+    printf("%f seconds elapsed\n", (float)(end - start)/1000.0);
 	XFlush (display);
 	sleep (30);
 
