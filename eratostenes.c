@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     gettimeofday(&timecheck, NULL);
     start = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
 
-    printf("%d\n", eratosthenes(1000000000));
+    printf("%d\n", eratosthenesMP(10000000000));
     gettimeofday(&timecheck, NULL);
     end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
 
