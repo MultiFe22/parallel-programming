@@ -4,8 +4,7 @@
 #include <omp.h>
 #include <time.h>
 #include <math.h>
-// block size, 128k is the sweet spot for Core i7 cpus
-const int sliceSize = 128*1024;
+
 
 
 int eratosthenes(long long int lastNumber);

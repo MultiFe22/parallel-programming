@@ -11,8 +11,8 @@
 #include <omp.h>
 #include <sys/time.h>
 
-#define		X_RESN	1000       /* x resolution */
-#define		Y_RESN	1000       /* y resolution */
+#define		X_RESN	800       /* x resolution */
+#define		Y_RESN	800       /* y resolution */
 
 typedef struct complextype
 	{
@@ -120,13 +120,13 @@ void main ()
         /* Calculate and draw points */
 		#pragma omp parallel shared(display,win,gc) private(z,c,k,i,j,lengthsq,temp)
 		{
-			#pragma omp for schedule(dynamic, omp_get_max_threads())
+			#pragma omp for schedule(dynamic, 1)
 			for(i=0; i < X_RESN; i++) 
 			for(j=0; j < Y_RESN; j++) {
 
 			z.real = z.imag = 0.0;
-			c.real = ((float) j - 500.0)/250.0;               /* scale factors for 800 x 800 window */
-			c.imag = ((float) i - 500.0)/250.0;
+			c.real = ((float) j - 400.0)/200.0;               /* scale factors for 800 x 800 window */
+			c.imag = ((float) i - 400.0)/200.0;
 			k = 0;
 
 			do  {                                             /* iterate for pixel color */
@@ -137,16 +137,15 @@ void main ()
 				lengthsq = z.real*z.real+z.imag*z.imag;
 				k++;
 
-			} while (lengthsq < 4.0 && k < 10000);
+			} while (lengthsq < 4.0 && k < 100000);
 			#pragma omp critical
-			{ 
-			if (k == 10000) XDrawPoint (display, win, gc, j, i);
+			{
+				if (k == 100000)XDrawPoint (display, win, gc, j, i);
 			}
 			}
 		}
 	gettimeofday(&timecheck, NULL);
     end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
-
     printf("%f seconds elapsed\n", (float)(end - start)/1000.0);
 	XFlush (display);
 	sleep (30);
