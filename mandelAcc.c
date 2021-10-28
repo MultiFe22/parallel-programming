@@ -1,6 +1,3 @@
-/* Sequential Mandlebrot program */
-
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
@@ -40,7 +37,7 @@ void main ()
         for(j=0; j < Y_RESN; j++) {
 
             z.real = z.imag = 0.0;
-            c.real = ((float) j - 400)/200.0;               /* scale factors for 800 x 800 window */
+            c.real = ((float) j - 400.0)/200.0;               /* scale factors for 800 x 800 window */
             c.imag = ((float) i - 400.0)/200.0;
             k = 0;
 
@@ -61,7 +58,7 @@ void main ()
         }
 	gettimeofday(&timecheck, NULL);
     end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
-
+    printf("Counter: %d\n",counter); 
     printf("%f seconds elapsed\n", (float)(end - start)/1000.0);
 
 	/* Program Finished */
